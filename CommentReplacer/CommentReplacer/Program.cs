@@ -13,11 +13,31 @@ namespace CommentReplacer
         static void Main(string[] args)
         {
 
+            switch (args[0])
+            {
+                case "-v":
+                case "v":
+                    Console.WriteLine("Comment Replacer V 1.0");
+                    Console.WriteLine("Author: NoremacSkich");
+                    Environment.Exit(0);
+                    break;
+                case "help":
+                case "-h":
+                case "h":
+                    Console.WriteLine("The purpose of this program is to add a comment to all instances of the word specified.");
+                    Console.WriteLine("You need the following three parameters: .\\CommentReplacer \"Path to file\" \"word or words to replace\" \"Comment to apply\"");
+                    Environment.Exit(0);
+                    break;
+
+            }
+
             if(args.Length!= 3)
             {
-                Console.WriteLine("You need at least three parameters: .\\CommentReplacer \"Path to file\" \"word or words to replace\" \"Comment to apply\"");
+                Console.WriteLine("You need the following three parameters: .\\CommentReplacer \"Path to file\" \"word or words to replace\" \"Comment to apply\"");
                 Environment.Exit(1);
             }
+
+
 
             string filePath = args[0];
             string wordToReplace = args[1];
@@ -57,7 +77,6 @@ namespace CommentReplacer
 
             while (rng.Find.Found)
             {
-
                 thisDocument.Comments.Add(rng, commentToAdd);
                 rng.Find.Execute();
             }
@@ -83,7 +102,5 @@ namespace CommentReplacer
                 return true;
             }
         }
-
-
     }
 }
