@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace CommentReplacer
 {
@@ -31,6 +32,19 @@ namespace CommentReplacer
             wordApp.Visible = true;
             // Need to make sure that file exists
             // Need to make sure that it's not already open 
+
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("This file doesn't exist, exiting application.");
+                Environment.Exit(1);
+            }
+
+            if (IsAlreadyOpen(filePath))
+            {
+                Console.WriteLine("This file is already open, exiting application");
+                Environment.Exit(1);
+            }
+
             Document thisDocument = wordApp.Documents.Open(@filePath);
             // https://msdn.microsoft.com/en-us/library/e7d13z59.aspx
             Range rng = thisDocument.Content;
@@ -52,5 +66,24 @@ namespace CommentReplacer
             thisDocument.Close();
             wordApp.Quit();
         }
+        //https://stackoverflow.com/a/876513/3271665
+        private static bool IsAlreadyOpen(string pathToFile)
+        {
+            try
+            {
+                using (Stream stream = new FileStream("MyFilename.txt", FileMode.Open))
+                {
+                    // File/Stream manipulating code here
+                }
+                return false;
+            }
+            catch
+            {
+                //check here why it failed and ask user to retry if the file is in use.
+                return true;
+            }
+        }
+
+
     }
 }
