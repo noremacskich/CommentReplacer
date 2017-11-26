@@ -31,27 +31,15 @@ namespace CommentReplacer
 
             }
 
-            if(args.Length!= 3)
+            if (args.Length != 3)
             {
                 Console.WriteLine("You need the following three parameters: .\\CommentReplacer \"Path to file\" \"word or words to replace\" \"Comment to apply\"");
                 Environment.Exit(1);
             }
 
-
-
             string filePath = args[0];
             string wordToReplace = args[1];
             string commentToAdd = args[2];
-
-            Console.WriteLine(filePath);
-            Console.WriteLine(wordToReplace);
-            Console.WriteLine(commentToAdd);
-
-
-            Application wordApp = new Microsoft.Office.Interop.Word.Application();
-            wordApp.Visible = true;
-            // Need to make sure that file exists
-            // Need to make sure that it's not already open 
 
             if (!File.Exists(filePath))
             {
@@ -65,6 +53,10 @@ namespace CommentReplacer
                 Environment.Exit(1);
             }
 
+            Application wordApp = new Microsoft.Office.Interop.Word.Application();
+            wordApp.Visible = true;
+
+
             Document thisDocument = wordApp.Documents.Open(@filePath);
             // https://msdn.microsoft.com/en-us/library/e7d13z59.aspx
             Range rng = thisDocument.Content;
@@ -72,12 +64,18 @@ namespace CommentReplacer
             rng.Find.ClearFormatting();
             rng.Find.Forward = true;
             rng.Find.Text = wordToReplace;
+            rng.Find.MatchWholeWord = true;
 
             rng.Find.Execute();
 
             while (rng.Find.Found)
             {
-                thisDocument.Comments.Add(rng, commentToAdd);
+                // Make sure that we are not putting duplicate comments on a particular range
+                if (!AlreadyHasComment(rng, commentToAdd))
+                {
+                    thisDocument.Comments.Add(rng, commentToAdd);
+                }
+                // Move on to the next finding
                 rng.Find.Execute();
             }
 
@@ -90,7 +88,7 @@ namespace CommentReplacer
         {
             try
             {
-                using (Stream stream = new FileStream("MyFilename.txt", FileMode.Open))
+                using (Stream stream = new FileStream(pathToFile, FileMode.Open))
                 {
                     // File/Stream manipulating code here
                 }
@@ -101,6 +99,23 @@ namespace CommentReplacer
                 //check here why it failed and ask user to retry if the file is in use.
                 return true;
             }
+        }
+        /// <summary>
+        /// Will return true if the comment already exists on the range, false if it doesn't.
+        /// </summary>
+        /// <param name="thisRange">The range to check.</param>
+        /// <param name="commentToAdd">The comment you are checking for.</param>
+        /// <returns></returns>
+        private static bool AlreadyHasComment(Range thisRange, string commentToAdd)
+        {
+            foreach (Comment thisComment in thisRange.Comments)
+            {
+                if (thisComment.Range.Text == commentToAdd)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
