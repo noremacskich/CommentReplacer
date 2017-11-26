@@ -71,7 +71,7 @@ namespace CommentReplacer
             while (rng.Find.Found)
             {
                 // Make sure that we are not putting duplicate comments on a particular range
-                if (!AlreadyHasComment(rng, commentToAdd))
+                if (!AlreadyHasComment(thisDocument, rng, commentToAdd))
                 {
                     thisDocument.Comments.Add(rng, commentToAdd);
                 }
@@ -103,19 +103,22 @@ namespace CommentReplacer
         /// <summary>
         /// Will return true if the comment already exists on the range, false if it doesn't.
         /// </summary>
+        /// <remarks>https://stackoverflow.com/a/29519365/3271665</remarks>
         /// <param name="thisRange">The range to check.</param>
         /// <param name="commentToAdd">The comment you are checking for.</param>
         /// <returns></returns>
-        private static bool AlreadyHasComment(Range thisRange, string commentToAdd)
+        private static bool AlreadyHasComment(Document doc, Range thisRange, string commentToAdd)
         {
-            foreach (Comment thisComment in thisRange.Comments)
+
+            foreach(Comment thisComment in doc.Comments)
             {
-                if (thisComment.Range.Text == commentToAdd)
+                if(thisComment.Scope.Start == thisRange.Start && thisComment.Scope.End == thisRange.End && thisComment.Range.Text == commentToAdd)
                 {
                     return true;
                 }
             }
             return false;
         }
+
     }
 }
